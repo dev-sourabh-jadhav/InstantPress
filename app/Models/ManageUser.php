@@ -12,20 +12,7 @@ class ManageUser extends Model
     protected $table = 'manage_users_table';
 
     // Fields that are mass assignable
-    protected $fillable = [
-        'user_id',
-        'phone',
-        'country',
-        'state',
-        'city',
-        'pincode',
-        'gender',
-        'dob',
-        'subscription_type',
-        'start_date',
-        'end_date',
-        'starter',
-    ];
+    protected $fillable = ['user_id', 'phone', 'country', 'state', 'city', 'pincode', 'gender', 'dob', 'subscription_type', 'start_date', 'end_date', 'status', 'duration'];
 
     /**
      * Get the user that owns the ManageUser.
@@ -33,5 +20,10 @@ class ManageUser extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function manageSites()
+    {
+        return $this->hasMany(ManageSite::class, 'user_id', 'user_id');
     }
 }

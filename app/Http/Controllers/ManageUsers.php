@@ -6,13 +6,18 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\ManageUser;
+use App\Models\Role;
 
 class ManageUsers extends Controller
 {
 
     public function index()
     {
-        return view("pages.manage_users");
+        // Fetch all roles from the database
+        $roles = Role::all();
+
+        // Pass the roles to the view using compact
+        return view("pages.manage_users", compact('roles'));
     }
 
 
@@ -33,7 +38,10 @@ class ManageUsers extends Controller
             'subscription_type' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'starter' => 'required',
+            'status' => 'required',
+            'role_id' => 'required',
+
+
         ]);
 
 
@@ -41,7 +49,7 @@ class ManageUsers extends Controller
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
-            'role_id' => 3,
+            'role_id' => $validatedData['role_id'],
         ]);
 
 
@@ -57,7 +65,7 @@ class ManageUsers extends Controller
             'subscription_type' => $validatedData['subscription_type'],
             'start_date' => $validatedData['start_date'],
             'end_date' => $validatedData['end_date'],
-            'starter' => $validatedData['starter'],
+            'status' => $validatedData['status'],
         ]);
 
         // Redirect back with a success message
@@ -66,11 +74,16 @@ class ManageUsers extends Controller
 
     public function getusers()
     {
-        $users = User::with('manageUsers')->where('role_id', 3)->get();
+        // Fetch all role IDs from the Role model
+        $roleIds = Role::pluck('id')->toArray();
+
+        // Fetch users with role IDs from the Role table
+        $users = User::with('manageUsers')->whereIn('role_id', $roleIds)->get();
 
         // Ensure the JSON response is well-formed
         return response()->json($users);
     }
+
 
 
     public function updateusers(Request $request, $id)
@@ -89,7 +102,8 @@ class ManageUsers extends Controller
             'subscription_type' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'starter' => 'required',
+            'status' => 'required',
+            'role_id' => 'required',
         ]);
 
         // Find the user
@@ -98,6 +112,7 @@ class ManageUsers extends Controller
         // Update user details
         $user->name = $validatedData['name'];
         $user->email = $validatedData['email'];
+        $user->role_id = $validatedData['role_id'];
 
         // Update password if provided
         if ($request->filled('password')) {
@@ -123,7 +138,7 @@ class ManageUsers extends Controller
         $manageUser->subscription_type = $validatedData['subscription_type'];
         $manageUser->start_date = $validatedData['start_date'];
         $manageUser->end_date = $validatedData['end_date'];
-        $manageUser->starter = $validatedData['starter'];
+        $manageUser->status = $validatedData['status'];
 
         $manageUser->save(); // Save ManageUser details
 

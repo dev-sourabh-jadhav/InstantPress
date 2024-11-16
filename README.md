@@ -1,4 +1,4 @@
-#AUTHOR - Sourabh Jadhav
+**AUTHOR** - Sourabh Jadhav
 # InstantPress - Instant WordPress Environment
 
 InstantPress  is a powerful and easy-to-use tool that allows you to create disposable WordPress environments in seconds. Perfect for developers, designers, and QA teams, QuickWP is designed for testing, development, and client demos without the hassle of manual setup.

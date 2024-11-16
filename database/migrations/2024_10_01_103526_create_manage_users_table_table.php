@@ -24,7 +24,8 @@ return new class extends Migration
             $table->string('subscription_type');
             $table->string('start_date');
             $table->string('end_date');
-            $table->string('starter');
+            $table->string('duration')->nullable();
+            $table->string('status');
             $table->timestamps();
         });
     }

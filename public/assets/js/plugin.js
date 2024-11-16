@@ -68,13 +68,15 @@ $(document).ready(function () {
         $('#shortDescription').val(shortDescription); // Set the short description in the hidden field
         $('#downloadPluginForm').data('downloadUrl', downloadUrl); // Set the download URL
         $('#downloadPluginModal').modal('show'); // Show the modal
+
+
     });
 
 
     $('#downloadBtn').on('click', function () {
         const pluginSlug = $('#pluginSlug').val(); // Get the slug
         const downloadUrl = $('#downloadPluginForm').data('downloadUrl'); // Make sure this is set
-        const categoryId = $('#pluginCategory').val(); // Get the selected category
+        const categoryId = $('#pluginCategory').val();
         const shortDescription = $('#shortDescription').val(); // Get the short description
 
         $('#loaderModal').modal('show');

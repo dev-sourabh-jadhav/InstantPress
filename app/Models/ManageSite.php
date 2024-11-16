@@ -12,20 +12,7 @@ class ManageSite extends Model
 
     protected $table = 'site_name_table';
 
-    // protected $fillable = [
-    //     'site_name',
-    //     'domain_name',
-    //     'version',
-    //     'themes',
-    //     'plugin',
-    //     'email',
-    //     'user_name',
-    //     'password',
-    //     'login_url',
-    //     'user_id',
-    //     'folder_name',
-    //     'site_type',
-    // ];
+
 
     protected $fillable = [
         'user_id',
@@ -47,11 +34,16 @@ class ManageSite extends Model
         'created_at',
         'updated_at',
         'status',
-     
+
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function manageUser()
+    {
+        return $this->belongsTo(ManageUser::class, 'user_id', 'user_id');
     }
 }

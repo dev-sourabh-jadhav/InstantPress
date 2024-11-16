@@ -1,145 +1,77 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
-        body {
-            background-color: #000;
-            /* Black background */
-            color: #fff;
-            /* White text */
-        }
-
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
-            /* Light shadow for contrast */
-            background-color: #1a1a1a;
-            /* Dark grey card background */
-        }
-
-        .card-header {
-            background: #333;
-            /* Darker header */
-            border-bottom: none;
-            border-radius: 15px 15px 0 0;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ffffff;
-            /* White text */
-        }
-
-        .form-control {
-            border-radius: 10px;
-            border: 1px solid #444;
-            /* Dark grey border */
-            background-color: #222;
-            /* Dark input background */
-            color: #fff;
-            /* White text */
-            transition: border-color 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: #fff;
-            /* White border on focus */
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-
-        .btn-primary {
-            background-color: #d30606;
-            /* Medium grey button */
-            border-color: #ef0101;
-            /* Medium grey border */
-            border-radius: 10px;
-            color: #ffffff;
-            /* White text */
-        }
-
-        .btn-primary:hover {
-            background-color: #777;
-            /* Light grey on hover */
-            border-color: #777;
-            /* Light grey border on hover */
-        }
-
-        .form-check-label {
-            color: #bbb;
-            /* Light grey for labels */
-        }
-
-        .text-center {
-            margin-top: 15px;
-        }
-
-        .invalid-feedback {
-            color: red;
-            /* Red error messages */
-        }
-    </style>
-
-    <div class="container mt-5">
+    <!-- Main Container -->
+    <section class="section min-vh-100 d-flex flex-column align-items-center justify-content-center py-4"
+    style="background: linear-gradient(135deg, #d9ffdc 0%, #e0f7fa 100%);">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">{{ __('Login') }}</div>
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                <div class="d-flex justify-content-center py-4">
+                    <a href="/" class="logo d-flex align-items-center w-auto">
+                        <img src="{{ asset('assets/img/walstarLogo.png') }}" alt="WALSTAR Logo" style="max-height: 50px;">
+                    </a>
+                </div><!-- End Logo -->
 
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('login') }}" id="loginForm">
+                <div class="card shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <div class="pt-4 pb-2 text-center">
+                            <h5 class="card-title fs-4 fw-bold">Login to Your Account</h5>
+                            <p class="text-muted small">Enter your username & password to login</p>
+                        </div>
+
+                        <form method="POST" action="{{ route('login') }}">
                             @csrf
 
                             <!-- Email Address -->
-                            <div class="form-group mb-3">
-                                <label for="email" class="form-label text-white ">Email Address</label>
-                                <input id="email" type="email"
-                                    class="form-control @error('email') is-invalid @enderror" name="email"
-                                    value="{{ old('email') }}" required autocomplete="email" autofocus>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control rounded-3 @error('email') is-invalid @enderror"
+                                    name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
+                                    placeholder="Enter your email">
+                                <label for="email">Email Address</label>
                                 @error('email')
-                                    <span class="invalid-feedback" role="alert">
+                                    <div class="invalid-feedback">
                                         <strong>{{ $message }}</strong>
-                                    </span>
+                                    </div>
                                 @enderror
                             </div>
 
                             <!-- Password -->
-                            <div class="form-group mb-3">
-                                <label for="password" class="form-label text-white ">{{ __('Password') }}</label>
-                                <input id="password" type="password"
-                                    class="form-control @error('password') is-invalid @enderror" name="password" required
-                                    autocomplete="current-password">
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control rounded-3 @error('password') is-invalid @enderror"
+                                    name="password" required autocomplete="current-password" placeholder="Enter your password">
+                                <label for="password">Password</label>
                                 @error('password')
-                                    <span class="invalid-feedback" role="alert">
+                                    <div class="invalid-feedback">
                                         <strong>{{ $message }}</strong>
-                                    </span>
+                                    </div>
                                 @enderror
                             </div>
 
-                            <!-- Remember Me -->
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="remember" id="remember"
-                                    {{ old('remember') ? 'checked' : '' }}>
-                                <label class="form-check-label" for="remember">
-                                    {{ __('Remember Me') }}
-                                </label>
+                            <!-- Submit Button -->
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-3">Sign In</button>
                             </div>
 
-                            <!-- Submit Button -->
+                            <!-- Forgot Password -->
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
-                                </button>
                                 @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}" style="color: #bbb;">
-                                        Forgot Your Password?
-                                    </a>
+                                    <a href="{{ route('password.request') }}" class="link-primary">Forgot password?</a>
                                 @endif
                             </div>
 
+                            <!-- No Account - Register Link -->
+                            <div class="text-center mt-3">
+                                <p>Don't have an account? <a href="register-page" class="link-primary">Register here</a></p>
+                            </div>
+
                         </form>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
+
 @endsection

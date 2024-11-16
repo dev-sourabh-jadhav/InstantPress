@@ -1,9 +1,9 @@
+
+
 .plugin-list {
     display: flex;
     flex-wrap: wrap;
-
     gap: 10px;
-
     overflow-y: auto;
 
 }
@@ -149,4 +149,45 @@ td {
         font-size: 12px;
         /* Adjust font size for smaller screens */
     }
+}
+
+
+/* //css payment */
+.payment {
+    color: rgb(0, 0, 0);
+    background-color: transparent;
+    border: none;
+    margin-bottom: 5px;
+
+}
+
+.payment:hover {
+    color: darkgreen;
+    border: 1px solid darkgreen;
+    background-color: white;
+}
+
+.payment-selected-card {
+    border: 2px solid #FFD700;
+
+    transition: border 0.3s ease;
+
+}
+
+.payment-check-icon {
+    position: absolute;
+
+    top: 10px;
+
+    right: 10px;
+
+    font-size: 1.5rem;
+
+}
+
+.payment-card {
+    position: relative;
+
+    cursor: pointer;
+
 }

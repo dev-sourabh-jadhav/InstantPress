@@ -151,78 +151,6 @@ class CreateWordpressController extends Controller
         return response()->json(['themes' => $themes]);
     }
 
-
-    // public function extractthemes(Request $request)
-    // {
-    //     // Retrieve the unique folder name from the session
-    //     $uniqueFolderName = session('unique_folder_name');
-
-    //     // Check if the folder name exists
-    //     if (!$uniqueFolderName) {
-    //         return response()->json(['success' => false, 'message' => 'No folder name found.']);
-    //     }
-
-    //     // Construct the target directory for themes
-    //     $targetDirectory = base_path("WPALL-Sites/{$uniqueFolderName}/wp-content/themes");
-
-    //     // Create the themes directory if it doesn't exist
-    //     if (!file_exists($targetDirectory)) {
-    //         mkdir($targetDirectory, 0755, true);
-    //     }
-
-    //     // Retrieve the selected themes from the request
-    //     $themes = $request->input('themes');
-
-    //     $themeNames = []; // Array to hold the new theme names
-
-    //     foreach ($themes as $theme) {
-    //         $filePath = public_path("wp-themes/" . basename($theme['filePath'])); // Get the full path to the zip file
-
-    //         // Check if the file exists before attempting to extract
-    //         if (file_exists($filePath)) {
-    //             $zip = new ZipArchive;
-
-    //             if ($zip->open($filePath) === TRUE) {
-    //                 // Extract the zip file to the target directory
-    //                 $zip->extractTo($targetDirectory);
-    //                 $zip->close();
-
-    //                 // Clean up the theme name
-    //                 $cleanedName = $theme['name']; 
-    //                 $themeNames[] = $cleanedName; // Add cleaned theme name to the array
-
-    //             } else {
-    //                 return response()->json(['success' => false, 'message' => "Failed to extract {$theme['filePath']}"]);
-    //             }
-    //         } else {
-    //             return response()->json(['success' => false, 'message' => "File does not exist: {$filePath}"]);
-    //         }
-    //     }
-
-    //     // Convert the array to a comma-separated string
-    //     $newThemeNamesString = implode(',', $themeNames);
-
-    //     // Fetch the existing theme names from the database
-    //     $site = ManageSite::where('folder_name', $uniqueFolderName)->first();
-    //     $existingThemes = $site->themes ? explode(',', $site->themes) : [];
-
-    //     // Merge existing themes with the new themes (keeping unique values only)
-    //     $allThemes = array_unique(array_merge($existingThemes, $themeNames));
-
-    //     // Convert the array back to a comma-separated string
-    //     $allThemeNamesString = implode(',', $allThemes);
-
-
-    //     session(['ThemeNames' => $allThemeNamesString]);
-    //     // Update the database with the combined theme names
-    //     $site->update([
-    //         'themes' => $allThemeNamesString,
-    //     ]);
-
-    //     return response()->json(['success' => true, 'message' => 'Themes extracted and saved successfully!']);
-    // }
-
-
     public function extractthemes(Request $request)
     {
         // Retrieve the unique folder name from the session
@@ -292,9 +220,9 @@ class CreateWordpressController extends Controller
     {
         // Validate inputs
         $request->validate([
-            'siteName' => 'required|string|max:255',
-            'user_name' => 'required|string|max:255',
-            'password' => 'required|string|min:6',
+            'siteName' => 'required',
+            'user_name' => 'required',
+            'password' => 'required',
         ]);
 
         $userId = Auth::id();
@@ -311,7 +239,12 @@ class CreateWordpressController extends Controller
         try {
             // Define paths for the zip file and the base directory for extracted sites
             $zipPath = public_path('wp-versions/wordpress-6.6.2.zip'); // Adjust this path as needed
-            $wpSitesPath = base_path('WPALL-Sites');
+            // $wpSitesPath = base_path('WPALL-Sites');
+            $wpSitesPath = public_path('WPALL-Sites');
+
+            $mysqlUser = env('SERVER_MYSQL_USER');
+            $mysqlPassword = env('SERVER_MYSQL_PASSWORD');
+
 
             // Create the base directory if it doesn't exist
             if (!file_exists($wpSitesPath)) {
@@ -337,8 +270,8 @@ class CreateWordpressController extends Controller
                         'user_name' => $request->input('user_name'),
                         'email' => $email,
                         'password' => $hashedPassword,
-                        'login_url' => "http://localhost/wp-sites/WPALL-Sites/" . $uniqueFolderName,
-                        'domain_name' => "http://localhost/wp-sites/WPALL-Sites/" . $uniqueFolderName,
+                        'login_url' =>  env('BASE_URL') .  env('FOLDER_URL') . $uniqueFolderName,
+                        'domain_name' =>  env('BASE_URL') .  env('FOLDER_URL') . $uniqueFolderName,
                         'db_name' => $uniqueFolderName,
                         'db_user_name' => 'root',
                         'status' => 'RUNNING'
@@ -373,7 +306,7 @@ class CreateWordpressController extends Controller
                     // Modify the wp-config.php content
                     $wpConfigContent = str_replace(
                         ['database_name_here', 'username_here', 'password_here'],
-                        [$uniqueFolderName, 'root', ''],
+                        [$uniqueFolderName, $mysqlUser, $mysqlPassword],
                         $wpConfigContent
                     );
 
@@ -457,97 +390,6 @@ class CreateWordpressController extends Controller
         }
     }
 
-
-
-    // protected function importSqlToDatabase($databaseName, $sql)
-    // {
-
-    //     $uniqueFolderName = session('unique_folder_name');
-    //     // Create a new connection to the newly created database
-    //     $connection = DB::connection('mysql');
-    //     $adminDetails = [];
-
-    //     try {
-    //         // Switch to the new database without wrapping in a transaction
-    //         $connection->statement("USE `$databaseName`");
-
-    //         // Split the SQL into individual statements
-    //         $queries = $this->splitSqlStatements($sql);
-
-    //         foreach ($queries as $query) {
-    //             $trimmedQuery = trim($query);
-    //             if (!empty($trimmedQuery)) {
-    //                 // Check if the table exists before creating it
-    //                 if (preg_match('/CREATE TABLE `(.*?)`/', $trimmedQuery, $matches)) {
-    //                     $tableName = $matches[1];
-
-    //                     // Query information schema to check if the table exists
-    //                     $exists = $connection->select(
-    //                         "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?",
-    //                         [$databaseName, $tableName]
-    //                     );
-
-    //                     // Skip the query if the table exists
-    //                     if (!empty($exists)) {
-    //                         continue;
-    //                     }
-    //                 }
-
-    //                 // Log the query being executed for debugging
-    //                 Log::info('Executing query: ' . $trimmedQuery);
-
-    //                 // Execute the query without wrapping in a transaction
-    //                 $connection->statement($trimmedQuery);
-    //             }
-    //         }
-
-    //         // Update WordPress database settings (example with admin details)
-    //         $siteTitle = session('site_name');
-    //         $siteUrl = "http://localhost/wp-sites/WPALL-Sites/" . session('unique_folder_name');
-    //         $adminUsername = session('user_name');
-    //         $adminPassword = session('password');
-    //         $adminEmail = session('email');
-    //         $themesName = session('ThemeNames');
-
-
-    //         // Update the database with MD5 hashed password
-    //         $connection->statement("UPDATE wp_options SET option_value=? WHERE option_name='siteurl' OR option_name='home'", [$siteUrl]);
-    //         $connection->statement("UPDATE wp_options SET option_value=? WHERE option_name='blogname'", [$siteTitle]);
-    //         $connection->statement("UPDATE wp_users SET user_login=?, user_pass=MD5(?), user_email=?, user_nicename=?, user_url=? WHERE ID=1", [
-    //             $adminUsername,
-    //             $adminPassword,
-    //             $adminEmail,
-    //             $adminUsername,
-    //             $siteUrl,
-    //         ]);
-
-
-
-    //         // Handle theme updates if provided
-    //         if ($themesName) {
-    //             $templateExists = $connection->select("SELECT COUNT(*) as count FROM wp_options WHERE option_name='template'")[0]->count;
-    //             $stylesheetExists = $connection->select("SELECT COUNT(*) as count FROM wp_options WHERE option_name='stylesheet'")[0]->count;
-
-    //             if ($templateExists) {
-    //                 $connection->statement("UPDATE wp_options SET option_value=? WHERE option_name='template'", [$themesName]);
-    //             } else {
-    //                 $connection->statement("INSERT INTO wp_options (option_name, option_value, autoload) VALUES (?, ?, 'yes')", ['template', $themesName]);
-    //             }
-
-    //             if ($stylesheetExists) {
-    //                 $connection->statement("UPDATE wp_options SET option_value=? WHERE option_name='stylesheet'", [$themesName]);
-    //             } else {
-    //                 $connection->statement("INSERT INTO wp_options (option_name, option_value, autoload) VALUES (?, ?, 'yes')", ['stylesheet', $themesName]);
-    //             }
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error('Database import failed: ' . $e->getMessage());
-    //         throw $e; // Re-throw exception to be caught in the main method
-    //     }
-
-    //     return $adminDetails; // Return the admin details
-    // }
-
     protected function splitSqlStatements($sql)
     {
         // Use a regex-based approach to avoid splitting on semicolons within strings or comments
@@ -563,6 +405,7 @@ class CreateWordpressController extends Controller
         $uniqueFolderName = session('unique_folder_name');
         $connection = DB::connection('mysql');
         $adminDetails = [];
+        $BASE_URL = getenv('BASE_URL');
 
         try {
             $connection->statement("USE `$databaseName`");
@@ -587,7 +430,7 @@ class CreateWordpressController extends Controller
 
             // Update WordPress settings and user details
             $siteTitle = session('site_name');
-            $siteUrl = "http://localhost/wp-sites/WPALL-Sites/" . session('unique_folder_name');
+            $siteUrl =     env('BASE_URL') .  env('FOLDER_URL') . session('unique_folder_name');
             $adminUsername = session('user_name');
             $adminPassword = session('password');
             $adminEmail = session('email');
@@ -706,9 +549,6 @@ class CreateWordpressController extends Controller
 
     public function getAdminDetails()
     {
-
-
-
         $authUser = auth()->user();
         $id = session('site_id');
 
@@ -720,14 +560,95 @@ class CreateWordpressController extends Controller
 
         $runningCount = $info->where('status', 'RUNNING')->count();
         $stoppedcount = $info->where('status', 'STOP')->count();
+        $deletedcount = $info->where('status', 'DELETED')->count();
 
         return response()->json([
             'info' => $info,
             'runningCount' => $runningCount,
             'id' => $id,
-            'stoppedcount' => $stoppedcount
-
+            'stoppedcount' => $stoppedcount,
+            'deletedcount' => $deletedcount
 
         ]);
+    }
+
+    public function deletesite($id)
+    {
+
+        $record = ManageSite::find($id);
+        if (!$record) {
+            return response()->json(['error' => 'Site not found'], 404);
+        }
+
+
+        $folderName = $record->folder_name;
+        $folderPath = rtrim(env('SITE_URL'), '/') . '/' . $folderName;
+
+
+        $this->deleteFolderAndDatabase($folderName, $folderPath);
+
+        // Step 2: Update the record status to 'DELETED'
+        $record->status = 'DELETED';
+        $record->save();
+
+        return response()->json(['message' => 'Site marked as deleted, folder removed, and database deleted'], 200);
+    }
+
+
+    private function deleteFolderAndDatabase($folderName, $folderPath)
+    {
+
+        if ($folderName) {
+            DB::statement("DROP DATABASE IF EXISTS `$folderName`");
+        }
+
+
+        if (is_dir($folderPath)) {
+            $files = array_diff(scandir($folderPath), array('.', '..'));
+
+            foreach ($files as $file) {
+                $filePath = $folderPath . '/' . $file;
+                if (is_dir($filePath)) {
+                    $this->deleteFolderAndDatabase($folderName, $filePath);
+                } else {
+                    unlink($filePath); // Delete file
+                }
+            }
+
+            // Remove the empty directory
+            rmdir($folderPath);
+            Log::info("Folder '$folderPath' and its contents deleted successfully.");
+        }
+    }
+
+    public function stopsite(Request $request)
+    {
+        $id = $request->input('id');
+        $record = ManageSite::find($id);
+
+        if (!$record) {
+            return response()->json(['error' => 'Site not found'], 404);
+        }
+
+        // Update the status to 'STOP'
+        $record->status = 'STOP';
+        $record->save();
+
+        return response()->json(['message' => 'Site status updated to STOP']);
+    }
+    public function runsite(Request $request)
+    {
+        $id = $request->input('id');
+        $record = ManageSite::find($id);
+
+        if (!$record) {
+            return response()->json(['error' => 'Site not found'], 404);
+        }
+
+        // Update the status to 'STOP'
+        $record->status = 'RUNNING';
+        $record->save();
+
+        return response()->json(['message' => 'Site status updated to RUNNING']);
     }
 }
